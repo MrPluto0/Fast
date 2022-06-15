@@ -2,6 +2,7 @@ import * as React from 'react';
 import Navigator from './router';
 import { createTheme, ThemeProvider } from '@rneui/themed';
 import { lightColors } from './styles/theme';
+import { RecoilRoot } from 'recoil';
 
 const theme = createTheme({
   lightColors,
@@ -9,9 +10,11 @@ const theme = createTheme({
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <Navigator />
-    </ThemeProvider>
+    <RecoilRoot>
+      <ThemeProvider theme={theme}>
+        <Navigator />
+      </ThemeProvider>
+    </RecoilRoot>
   );
 }
 
