@@ -2,11 +2,14 @@ import type { LoginStackList } from '../../types/route';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { useTheme } from '@rneui/themed';
 import { useRecoilState } from 'recoil';
 import { userState, UserType } from '../../store/user';
 import { Icon, Input, Button, CheckBox } from '@rneui/base';
+import { RadioView } from '../../components/radioView';
+import { RegisterUser } from '../../apis/user';
+import { AccountValidator } from '../../utils/validator';
 
 type RegisterScreenProp = NativeStackNavigationProp<LoginStackList, 'Register'>;
 
@@ -56,35 +59,39 @@ export default function RegisterScreen({ navigation }: RegisterScreenProp) {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [password2, setPassword2] = React.useState('');
-  const [userType, setUserType] = React.useState(UserType.REGULAR);
-  const [checklist, setChecklist] = React.useState(checkBoxes);
+  const [userType, setUserType] = React.useState(UserType.VISITOR);
   const { theme } = useTheme();
   const [, setUser] = useRecoilState(userState);
 
-  const handleRegister = React.useCallback(() => {
-    if (username && password) {
-      console.log(`username: ${username}`);
-      console.log(`password: ${password}`);
+  const handleRegister = React.useCallback(async () => {
+    if (!AccountValidator(username) || !AccountValidator(password)) {
+      Alert.alert('用户名或密码格式不符合');
+      return;
+    }
+    if (password !== password2) {
+      Alert.alert('两次输入密码不同');
+      return;
+    }
+    if (userType === UserType.VISITOR) {
+      Alert.alert('请选择用户类型');
+      return;
+    }
+    let res = await RegisterUser({
+      userName: username,
+      userPassword: password,
+      userType,
+    });
+    if (res.status === 200) {
       setUser(user => ({
+        ...user,
         type: UserType.REGULAR,
         username,
       }));
-      // navigation.navigate('Home');
+      navigation.navigate('Home');
+    } else {
+      Alert.alert('用户名已存在');
     }
-  }, [username, password, setUser]);
-
-  const handleRadio = React.useCallback((index: number) => {
-    setChecklist(checks =>
-      checks.map((item, i) => {
-        if (i === index) {
-          item.checked = true;
-        } else {
-          item.checked = false;
-        }
-        return item;
-      }),
-    );
-  }, []);
+  }, [username, password, password2, userType, setUser, navigation]);
 
   return (
     <View style={styles.screen}>
@@ -99,6 +106,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProp) {
           onChangeText={setUsername}
           leftIcon={<Icon name="account-circle" />}
           containerStyle={styles.inputContainer}
+          errorMessage="a-z A-Z 0-9 _"
         />
         <Input
           selectionColor={theme.colors.primary}
@@ -116,16 +124,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProp) {
           leftIcon={<Icon name="lock" />}
           containerStyle={styles.inputContainer}
         />
-        <View style={styles.checkboxWrapper}>
-          {checklist.map((item, index) => (
-            <CheckBox
-              containerStyle={{ backgroundColor: 'transparent' }}
-              title={item.label}
-              checked={item.checked}
-              onPress={() => handleRadio(index)}
-            />
-          ))}
-        </View>
+        <RadioView checklist={checkBoxes} onChecked={setUserType} />
       </View>
       <View style={styles.buttonWrapper}>
         <Button

@@ -29,9 +29,12 @@ export default function WelcomeScreen({ navigation }: WelcomeScreenProp) {
   const { theme } = useTheme();
   return (
     <View style={styles.screen}>
-      <Text style={{ ...styles.title, color: theme.colors.primary }}>
-        Fast Charge
-      </Text>
+      <View>
+        <Text style={{ ...styles.title, color: theme.colors.primary }}>
+          Fast Charge
+        </Text>
+        <Text style={{ textAlign: 'center' }}>智能充电桩调度计费系统</Text>
+      </View>
       <Button
         containerStyle={styles.button}
         title="Enter"

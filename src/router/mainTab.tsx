@@ -4,9 +4,9 @@ import {
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 
+import ProfileStack from './profileStack';
 import HomeScreen from '../screens/main/Home';
 import ChargeScreen from '../screens/main/Charge';
-import ProfileScreen from '../screens/main/Profile';
 import tabIcon from '../components/tabIcon';
 import { useTheme } from '@rneui/themed';
 import { MainTabList } from '../types/route';
@@ -64,7 +64,7 @@ export default function MainTab() {
       />
       <MainTabNavigator.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileStack}
         options={{
           tabBarLabel: '我',
           tabBarIcon: tabIcon('face'),

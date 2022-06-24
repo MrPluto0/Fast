@@ -2,11 +2,13 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LoginStackList } from '../../types/route';
 
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { Input, Button, Text, Icon } from '@rneui/base';
 import { useTheme } from '@rneui/themed';
 import { useRecoilState } from 'recoil';
 import { userState, UserType } from '../../store/user';
+import { AccountValidator } from '../../utils/validator';
+import { LoginUser } from '../../apis/user';
 
 type LoginScreenProp = NativeStackNavigationProp<LoginStackList, 'Login'>;
 
@@ -36,20 +38,30 @@ const styles = StyleSheet.create({
 
 // @ts-ignore
 export default function LoginScreen({ navigation }: LoginScreenProp) {
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [username, setUsername] = React.useState('test1');
+  const [password, setPassword] = React.useState('123456');
   const { theme } = useTheme();
   const [, setUser] = useRecoilState(userState);
 
-  const handleLogin = React.useCallback(() => {
-    if (username && password) {
-      console.log(`username: ${username}`);
-      console.log(`password: ${password}`);
+  const handleLogin = React.useCallback(async () => {
+    if (!AccountValidator(username) || !AccountValidator(password)) {
+      Alert.alert('用户名或密码格式不正确');
+      return;
+    }
+    let res = await LoginUser({
+      userName: username,
+      userPassword: password,
+    });
+    if (res.status === 200) {
       setUser(user => ({
-        type: UserType.REGULAR,
+        ...user,
+        userId: res.data.userId,
+        type: res.data.userType,
         username,
       }));
       navigation.navigate('Home');
+    } else {
+      Alert.alert('用户名或密码错误');
     }
   }, [username, password, setUser, navigation]);
 

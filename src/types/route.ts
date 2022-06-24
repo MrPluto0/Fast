@@ -12,5 +12,12 @@ export type LoginStackList = {
 export type MainTabList = {
   Home: undefined;
   Charge: undefined;
-  Profile: undefined;
+  Profile: {
+    screen?: keyof ProfileStackList;
+  };
+};
+
+export type ProfileStackList = {
+  Index: undefined;
+  ChargePile: undefined;
 };
