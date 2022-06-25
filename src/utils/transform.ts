@@ -1,22 +1,30 @@
 import _ from 'lodash';
-import { Dict } from '../types/general';
+import { Dict, IDate } from '../types/general';
 
-export function transformSnake(data: Dict) {
-  const copy: Dict = {};
-  if (data) {
+const transform = (data: any, action: Function) => {
+  let copy = data;
+  if (data instanceof Array) {
+    copy = [];
+    data.forEach(item => {
+      (copy as any[]).push(transform(item, action));
+    });
+  } else if (data instanceof Object) {
+    copy = {};
     Object.keys(data).forEach(key => {
-      copy[_.snakeCase(key)] = data[key];
+      copy[action(key)] = transform(data[key], action);
     });
   }
-  return copy;
+  return copy ?? {};
+};
+
+export function transformSnake(data: Dict) {
+  return transform(data, _.snakeCase);
 }
 
 export function transformCamel(data: Dict) {
-  const copy: Dict = {};
-  if (data) {
-    Object.keys(data).forEach(key => {
-      copy[_.camelCase(key)] = data[key];
-    });
-  }
-  return copy;
+  return transform(data, _.camelCase);
+}
+
+export function transformDate(date: IDate) {
+  return `${date.month}/${date.day} ${date.hour}:${date.min}`;
 }

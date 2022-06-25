@@ -2,11 +2,10 @@ import type { LoginStackList } from '../../types/route';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import * as React from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ToastAndroid } from 'react-native';
 import { useTheme } from '@rneui/themed';
-import { useRecoilState } from 'recoil';
-import { userState, UserType } from '../../store/user';
-import { Icon, Input, Button, CheckBox } from '@rneui/base';
+import { UserType } from '../../store/user';
+import { Icon, Input, Button, Text } from '@rneui/base';
 import { RadioView } from '../../components/radioView';
 import { RegisterUser } from '../../apis/user';
 import { AccountValidator } from '../../utils/validator';
@@ -56,24 +55,40 @@ const checkBoxes = [
 
 // @ts-ignore
 export default function RegisterScreen({ navigation }: RegisterScreenProp) {
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [password2, setPassword2] = React.useState('');
+  const [username, setUsername] = React.useState('mxl123');
+  const [password, setPassword] = React.useState('mxl123');
+  const [password2, setPassword2] = React.useState('mxl123');
   const [userType, setUserType] = React.useState(UserType.VISITOR);
+  const [errorMsg1, setErrorMsg1] = React.useState('');
+  const [errorMsg2, setErrorMsg2] = React.useState('');
+  const [errorMsg3, setErrorMsg3] = React.useState('');
   const { theme } = useTheme();
-  const [, setUser] = useRecoilState(userState);
 
-  const handleRegister = React.useCallback(async () => {
-    if (!AccountValidator(username) || !AccountValidator(password)) {
-      Alert.alert('用户名或密码格式不符合');
-      return;
+  const validate = React.useCallback(() => {
+    if (!AccountValidator(username)) {
+      setErrorMsg1('用户名或密码格式不符合,5-15位数字字母下划线');
+      return false;
+    }
+    if (!AccountValidator(password)) {
+      setErrorMsg2('用户名或密码格式不符合,5-15位数字字母下划线');
+      return false;
     }
     if (password !== password2) {
-      Alert.alert('两次输入密码不同');
-      return;
+      setErrorMsg3('两次输入密码不一致');
+      return false;
     }
     if (userType === UserType.VISITOR) {
       Alert.alert('请选择用户类型');
+      return false;
+    }
+    setErrorMsg1('');
+    setErrorMsg2('');
+    setErrorMsg3('');
+    return true;
+  }, [password, password2, userType, username]);
+
+  const handleRegister = React.useCallback(async () => {
+    if (!validate()) {
       return;
     }
     let res = await RegisterUser({
@@ -82,16 +97,12 @@ export default function RegisterScreen({ navigation }: RegisterScreenProp) {
       userType,
     });
     if (res.status === 200) {
-      setUser(user => ({
-        ...user,
-        type: UserType.REGULAR,
-        username,
-      }));
-      navigation.navigate('Home');
+      ToastAndroid.show('注册成功，请重新登录!', ToastAndroid.SHORT);
+      navigation.navigate('Login');
     } else {
       Alert.alert('用户名已存在');
     }
-  }, [username, password, password2, userType, setUser, navigation]);
+  }, [validate, username, password, userType, navigation]);
 
   return (
     <View style={styles.screen}>
@@ -106,7 +117,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProp) {
           onChangeText={setUsername}
           leftIcon={<Icon name="account-circle" />}
           containerStyle={styles.inputContainer}
-          errorMessage="a-z A-Z 0-9 _"
+          errorMessage={errorMsg1}
         />
         <Input
           selectionColor={theme.colors.primary}
@@ -115,6 +126,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProp) {
           onChangeText={setPassword}
           leftIcon={<Icon name="lock" />}
           containerStyle={styles.inputContainer}
+          errorMessage={errorMsg2}
         />
         <Input
           selectionColor={theme.colors.primary}
@@ -123,6 +135,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProp) {
           onChangeText={setPassword2}
           leftIcon={<Icon name="lock" />}
           containerStyle={styles.inputContainer}
+          errorMessage={errorMsg3}
         />
         <RadioView checklist={checkBoxes} onChecked={setUserType} />
       </View>

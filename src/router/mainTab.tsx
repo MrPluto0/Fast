@@ -4,7 +4,7 @@ import {
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 
-import ProfileStack from './profileStack';
+import ProfileScreen from '../screens/main/Profile';
 import HomeScreen from '../screens/main/Home';
 import ChargeScreen from '../screens/main/Charge';
 import tabIcon from '../components/tabIcon';
@@ -19,8 +19,6 @@ interface Props {
   size: number;
 }
 
-function chargeIcon(props: Props) {}
-
 export default function MainTab() {
   const { theme } = useTheme();
   const screenOptions: BottomTabNavigationOptions = {
@@ -33,6 +31,9 @@ export default function MainTab() {
       fontWeight: 'bold',
     },
     headerTitleAlign: 'center',
+    tabBarStyle: {
+      backgroundColor: theme.colors.grey5,
+    },
     tabBarLabelStyle: {
       fontSize: 13,
     },
@@ -40,7 +41,7 @@ export default function MainTab() {
       borderRadius: 50,
     },
     tabBarActiveBackgroundColor: theme.colors.primary,
-    tabBarActiveTintColor: theme.colors.white,
+    tabBarActiveTintColor: theme.colors.disabled,
   };
   return (
     <MainTabNavigator.Navigator
@@ -64,7 +65,7 @@ export default function MainTab() {
       />
       <MainTabNavigator.Screen
         name="Profile"
-        component={ProfileStack}
+        component={ProfileScreen}
         options={{
           tabBarLabel: '我',
           tabBarIcon: tabIcon('face'),

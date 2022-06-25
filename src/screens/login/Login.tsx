@@ -2,7 +2,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { LoginStackList } from '../../types/route';
 
 import * as React from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, ToastAndroid, View } from 'react-native';
 import { Input, Button, Text, Icon } from '@rneui/base';
 import { useTheme } from '@rneui/themed';
 import { useRecoilState } from 'recoil';
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
 
 // @ts-ignore
 export default function LoginScreen({ navigation }: LoginScreenProp) {
-  const [username, setUsername] = React.useState('test1');
-  const [password, setPassword] = React.useState('123456');
+  const [username, setUsername] = React.useState('mxl123');
+  const [password, setPassword] = React.useState('mxl123');
   const { theme } = useTheme();
   const [, setUser] = useRecoilState(userState);
 
@@ -53,6 +53,7 @@ export default function LoginScreen({ navigation }: LoginScreenProp) {
       userPassword: password,
     });
     if (res.status === 200) {
+      ToastAndroid.show('登录成功！', ToastAndroid.SHORT);
       setUser(user => ({
         ...user,
         userId: res.data.userId,

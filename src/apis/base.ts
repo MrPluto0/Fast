@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { transformSnake } from '../utils/transform';
+import AppConfig from '../config/setting';
+import { transformCamel, transformSnake } from '../utils/transform';
 
 interface GeneralReq {
   userId: number;
@@ -10,20 +11,16 @@ interface GeneralRes {
 }
 
 const service = axios.create({
-  baseURL: 'http://82.156.172.158:8080/',
+  baseURL: AppConfig.ServerHost,
   headers: {
     'Content-Type': 'application/json',
   },
-  transformRequest: [
-    data => {
-      return JSON.stringify(transformSnake(data));
-    },
-  ],
 });
 
-axios.interceptors.request.use(
-  config => {
-    return config;
+service.interceptors.request.use(
+  request => {
+    request.data = transformSnake(request.data);
+    return request;
   },
   error => {
     return Promise.resolve(error);
@@ -34,7 +31,7 @@ service.interceptors.response.use(
   response => {
     const successResp = {
       status: response.status,
-      data: response.data,
+      data: transformCamel(response.data),
     };
     return successResp;
   },
@@ -42,8 +39,11 @@ service.interceptors.response.use(
     const errorResp = {
       status: error.response.status,
       message: error.message,
+      data: transformCamel(error.response?.data),
     };
-    return Promise.resolve(errorResp);
+    console.debug(error.request.responseURL);
+    console.log(JSON.stringify(errorResp, null, 4));
+    return errorResp;
   },
 );
 

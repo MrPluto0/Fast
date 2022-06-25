@@ -1,12 +1,13 @@
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { AppStackList, MainTabList } from '../../../types/route';
+import type { AppStackList, MainTabList } from '../../types/route';
 
 import * as React from 'react';
 import { View, StyleSheet, Alert, ToastAndroid } from 'react-native';
 import { Avatar, Text, Button, ListItem, Icon } from '@rneui/base';
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
-import { userState, UserType } from '../../../store/user';
-import { LogoutUser } from '../../../apis/user';
+import { useRecoilState, useResetRecoilState } from 'recoil';
+import { userState, UserType } from '../../store/user';
+import { useTheme, useThemeMode } from '@rneui/themed';
+import useExitLogin from '../../hooks/useExitLogin';
 
 type ProfileScreenProp = BottomTabScreenProps<
   MainTabList & AppStackList,
@@ -30,26 +31,9 @@ const styles = StyleSheet.create({
 
 export default function ProfileScreen({ navigation }: ProfileScreenProp) {
   const [user, setUser] = useRecoilState(userState);
-  const resetUser = useResetRecoilState(userState);
-
-  const exitLogin = React.useCallback(() => {
-    const confirm = async () => {
-      LogoutUser({
-        userId: user.userId,
-      });
-      resetUser();
-    };
-    Alert.alert('提示', '是否确认退出登录', [
-      {
-        text: '确定',
-        onPress: confirm,
-      },
-      {
-        text: '取消',
-        style: 'cancel',
-      },
-    ]);
-  }, [resetUser, user.userId]);
+  const { theme } = useTheme();
+  const { mode, setMode } = useThemeMode();
+  const exitLogin = useExitLogin();
 
   const list = [
     {
@@ -57,19 +41,27 @@ export default function ProfileScreen({ navigation }: ProfileScreenProp) {
       show: [UserType.REGULAR],
       icon: 'bolt',
       onPress: () =>
-        ToastAndroid.show('A pikachu appeared nearby !', ToastAndroid.SHORT),
+        navigation.navigate('ChargeStack', { screen: 'ChargeRecord' }),
     },
     {
       title: '查看报表',
       show: [UserType.MANAGER],
       icon: 'analytics',
-      onPress: () => console.log('analyzer'),
+      onPress: () =>
+        navigation.navigate('ChargeStack', { screen: 'ChargeReport' }),
     },
     {
-      title: '管理充电桩',
-      show: [UserType.MANAGER, UserType.REGULAR],
+      title: '查看充电桩',
+      show: [UserType.MANAGER],
       icon: 'list',
-      onPress: () => navigation.navigate('Profile', { screen: 'ChargePile' }),
+      onPress: () =>
+        navigation.navigate('ChargeStack', { screen: 'ChargePile' }),
+    },
+    {
+      title: '主题模式',
+      show: [UserType.MANAGER, UserType.REGULAR],
+      icon: 'nightlight-round',
+      onPress: () => setMode(mode === 'light' ? 'dark' : 'light'),
     },
     {
       title: '联系我们',
@@ -79,18 +71,21 @@ export default function ProfileScreen({ navigation }: ProfileScreenProp) {
     },
     {
       title: '退出登录',
-      show: [UserType.REGULAR, UserType.REGULAR],
+      show: [UserType.MANAGER, UserType.REGULAR],
       icon: 'exit-to-app',
       onPress: exitLogin,
     },
   ];
 
   return (
-    <View style={styles.screen}>
+    <View
+      style={{ ...styles.screen, backgroundColor: theme.colors.background }}>
       {user.type === UserType.VISITOR && (
         <View style={{ justifyContent: 'center', height: '100%' }}>
           <View style={{ marginBottom: 20 }}>
-            <Text style={{ fontSize: 15 }}>你的身份: {user.username}</Text>
+            <Text style={{ fontSize: 15, color: theme.colors.black }}>
+              你的身份: {user.username}
+            </Text>
           </View>
           <Button
             style={{ marginTop: 100 }}
@@ -105,10 +100,10 @@ export default function ProfileScreen({ navigation }: ProfileScreenProp) {
             <Avatar
               size={64}
               rounded
-              icon={{ name: 'extension', type: 'material' }}
+              icon={{ name: 'android', type: 'material' }}
               containerStyle={{ backgroundColor: '#6733b9' }}
             />
-            <Text>{user.username}</Text>
+            <Text style={{ color: theme.colors.black }}>{user.username}</Text>
           </View>
           <View style={styles.listWrapper}>
             {list.map(

@@ -60,7 +60,7 @@ export const BallView: React.FC<Props> = props => {
   return (
     <View style={{ ...styles.wrapper, borderColor: theme.colors.primary }}>
       <View style={styles.inner}>
-        <Text>{props.title}</Text>
+        <Text style={{ color: theme.colors.black }}>{props.title}</Text>
         <Animated.View
           style={[
             styles.water,

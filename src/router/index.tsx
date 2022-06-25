@@ -6,6 +6,7 @@ import type { AppStackList } from '../types/route';
 import WelcomeScreen from '../screens/Welcome';
 import MainTab from './mainTab';
 import LoginStack from './loginStack';
+import ChargeStack from './chargeStack';
 
 const AppStackNavigator = createNativeStackNavigator<AppStackList>();
 
@@ -18,6 +19,7 @@ export default function Navigator() {
         <AppStackNavigator.Screen name="Welcome" component={WelcomeScreen} />
         <AppStackNavigator.Screen name="LoginStack" component={LoginStack} />
         <AppStackNavigator.Screen name="MainTab" component={MainTab} />
+        <AppStackNavigator.Screen name="ChargeStack" component={ChargeStack} />
       </AppStackNavigator.Navigator>
     </NavigationContainer>
   );

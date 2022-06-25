@@ -1,20 +1,18 @@
 import * as React from 'react';
 import Navigator from './router';
 import { createTheme, ThemeProvider } from '@rneui/themed';
-import { lightColors } from './styles/theme';
 import { RecoilRoot } from 'recoil';
+import AppConfig from './config/setting';
 
-const theme = createTheme({
-  lightColors,
-});
+const theme = createTheme(AppConfig.Theme);
 
 function App() {
   return (
-    <RecoilRoot>
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <RecoilRoot>
         <Navigator />
-      </ThemeProvider>
-    </RecoilRoot>
+      </RecoilRoot>
+    </ThemeProvider>
   );
 }
 

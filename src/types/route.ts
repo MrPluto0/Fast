@@ -2,6 +2,9 @@ export type AppStackList = {
   Welcome: undefined;
   LoginStack: undefined;
   MainTab: undefined;
+  ChargeStack: {
+    screen?: keyof ChargeStackList;
+  };
 };
 
 export type LoginStackList = {
@@ -12,12 +15,11 @@ export type LoginStackList = {
 export type MainTabList = {
   Home: undefined;
   Charge: undefined;
-  Profile: {
-    screen?: keyof ProfileStackList;
-  };
+  Profile: undefined;
 };
 
-export type ProfileStackList = {
-  Index: undefined;
+export type ChargeStackList = {
   ChargePile: undefined;
+  ChargeRecord: undefined;
+  ChargeReport: undefined;
 };

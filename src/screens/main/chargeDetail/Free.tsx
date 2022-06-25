@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ToastAndroid } from 'react-native';
 import { Icon, Button } from '@rneui/base';
 import { Input, useTheme } from '@rneui/themed';
 import { useRecoilState } from 'recoil';
@@ -45,7 +45,7 @@ export default function Free({}) {
       Alert.alert('请先登录');
       return;
     }
-    if (NumValidator(chargeCapacity)) {
+    if (!NumValidator(chargeCapacity)) {
       Alert.alert('请输入正确的充电量');
       return;
     }
@@ -59,13 +59,15 @@ export default function Free({}) {
       chargeRule: chargeMode,
     });
     if (res.status === 200) {
-      Alert.alert('充电请求成功');
+      ToastAndroid.show('充电请求成功，进入等候区', ToastAndroid.SHORT);
       setUser(u => ({
         ...u,
         status: UserStatus.WAITING,
         chargeMode,
         chargeCapacity: parseFloat(chargeCapacity),
       }));
+    } else {
+      ToastAndroid.show('充电请求失败', ToastAndroid.SHORT);
     }
   }, [chargeCapacity, chargeMode, setUser, user.type, user.userId]);
 
@@ -77,7 +79,7 @@ export default function Free({}) {
           placeholder="输入充电量"
           value={chargeCapacity}
           onChangeText={setChargeCapacity}
-          leftIcon={<Icon name="bolt" />}
+          leftIcon={<Icon name="bolt" color={theme.colors.black} />}
         />
         <RadioView checklist={checklist} onChecked={setChargeMode} />
       </View>

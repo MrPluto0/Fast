@@ -1,5 +1,4 @@
 import { UserType } from '../store/user';
-import { transformCamel } from '../utils/transform';
 import { GeneralReq, service } from './base';
 
 interface RegisterUserReq {
@@ -27,7 +26,7 @@ export async function LoginUser(data: LoginUserReq) {
   let res = await service.post('/user/login', data);
   return {
     status: res.status,
-    data: transformCamel(res.data) as LoginUserRes,
+    data: res.data as LoginUserRes,
   };
 }
 
